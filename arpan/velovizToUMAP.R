@@ -17,6 +17,7 @@ names(cell.cols) <- names(clusters)
 curr <- vel$current
 proj <- vel$projected
 k <- 5
+
 veloviz <- buildVeloviz(
   curr = curr, 
   proj = proj,
@@ -42,7 +43,7 @@ nnGraph <- as_nn_graph(graph = veloviz$graph, k = k)
 # input nnGraph to UMAP and plot
 par(mfrow = c(1,1))
 set.seed(0)
-emb.umap = uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
 rownames(emb.umap) <- rownames(pcs)
 plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
               xlab = "UMAP X", ylab = "UMAP Y")
