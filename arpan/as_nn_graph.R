@@ -1,3 +1,5 @@
+library(igraph)
+
 as_nn_graph = function(graph, k) {
   edges <- get.edgelist(graph) # array of [source, target] 
   weights <- E(graph)$weight # edge weights
