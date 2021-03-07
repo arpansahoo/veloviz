@@ -32,7 +32,7 @@ merfish.cycle.pnas = merfish.genes[which(merfish.genes %in% cycle.genes.pnas)]
 curr.pnas = curr[merfish.cycle.pnas,]
 proj.pnas = proj[merfish.cycle.pnas,]
 
-par(mfrow = c(1,3))
+par(mfrow = c(1,1))
 
 # build VeloViz embedding using all genes
 veloviz.all = buildVeloviz(
@@ -92,6 +92,7 @@ veloviz.go = buildVeloviz(
 )
 
 # UMAP
+par(mfrow = c(1,1))
 set.seed(0)
 nnGraph.go <- as_nn_graph(graph = veloviz.go$graph, k = 20)
 
@@ -129,6 +130,7 @@ veloviz.pnas = buildVeloviz(
 )
 
 #UMAP
+par(mfrow = c(1,1))
 set.seed(0)
 nnGraph.pnas <- as_nn_graph(graph = veloviz.pnas$graph, k = 50)
 

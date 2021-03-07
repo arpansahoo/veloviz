@@ -26,7 +26,7 @@ names(clusters) <- adata$obs_names$values
 
 #subsample to make things faster
 set.seed(0)
-good.cells <- sample(cells, length(cells) / 3)
+good.cells <- sample(cells, length(cells) / 2)
 spliced <- spliced[,good.cells]
 unspliced <- unspliced[,good.cells]
 clusters <- clusters[good.cells]
