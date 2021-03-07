@@ -14,7 +14,7 @@ as_nn_graph = function(graph, k) {
   
   # replace NA values by saying a vertex X is a neighbor of itself 
   for (i in 1:numVertices) {
-    idx[i,] = i
+    idx[i,] <- i
   }
   
   for (i in 1:numEdges) {
@@ -25,14 +25,14 @@ as_nn_graph = function(graph, k) {
     # index of first "NA" value in row, after index 1
     index <- min(which(idx[source,] == source)[-1])
     
-    idx[source, index] = target
-    dist[source, index] = weights[i]
+    idx[source, index] <- target
+    dist[source, index] <- weights[i]
   }
   
   # construct & return a list consisting of two elements: "idx", "dist"
-  nnGraph = list()
-  nnGraph$idx = idx
-  nnGraph$dist = dist
+  nnGraph <- list()
+  nnGraph$idx <- idx
+  nnGraph$dist <- dist
   
   return(nnGraph)
 }

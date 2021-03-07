@@ -9,8 +9,9 @@ source("as_nn_graph.R")
 # pcs <- pancreas$pcs # PCs used to make other embeddings (UMAP,tSNE..)
 # vel <- pancreas$vel # velocity
 
-scv = import("scvelo")
-adata = scv$datasets$pancreas()
+#getting pancreas data from scVelo
+scv <- import("scvelo")
+adata <- scv$datasets$pancreas()
 
 #extract spliced, unspliced counts
 spliced <- as.matrix(Matrix::t(adata$layers['spliced']))
@@ -26,33 +27,33 @@ names(clusters) <- adata$obs_names$values
 
 #subsample to make things faster
 set.seed(0)
-good.cells <- sample(cells, length(cells) / 2)
+good.cells <- sample(cells, 50)
 spliced <- spliced[,good.cells]
 unspliced <- unspliced[,good.cells]
 clusters <- clusters[good.cells]
 
 #keep genes with >10 total counts
-good.genes = genes[rowSums(spliced) > 10 & rowSums(unspliced) > 10]
-spliced = spliced[good.genes,]
+good.genes <- genes[rowSums(spliced) > 10 & rowSums(unspliced) > 10]
+spliced <- spliced[good.genes,]
 unspliced = unspliced[good.genes,]
 
-counts = spliced + unspliced # use combined spliced and unspliced counts
-cpm = normalizeDepth(counts) # normalize to counts per million
-varnorm = normalizeVariance(cpm) # variance stabilize, find overdispersed genes
-lognorm = log10(varnorm + 1) # log normalize
+counts <- spliced + unspliced # use combined spliced and unspliced counts
+cpm <- normalizeDepth(counts) # normalize to counts per million
+varnorm <- normalizeVariance(cpm) # variance stabilize, find overdispersed genes
+lognorm <- log10(varnorm + 1) # log normalize
 
 #PCA on centered and scaled expression of overdispersed genes
-pcs = reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
+pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 
 #cell distance in PC space
-cell.dist = as.dist(1-cor(t(pcs))) # cell distance in PC space
+cell.dist <- as.dist(1-cor(t(pcs))) # cell distance in PC space
 
 # compute velocity
-vel = gene.relative.velocity.estimates(spliced,
-                                       unspliced,
-                                       kCells = 30,
-                                       cell.dist = cell.dist,
-                                       fit.quantile = 0.1)
+vel <- gene.relative.velocity.estimates(spliced,
+                                        unspliced,
+                                        kCells = 30,
+                                        cell.dist = cell.dist,
+                                        fit.quantile = 0.1)
 
 
 # choose colors based on clusters for plotting later
@@ -82,11 +83,14 @@ veloviz <- buildVeloviz(
   verbose = FALSE
 )
 
+emb.veloviz = veloviz$fdg_coords
+
 # Convert veloviz$graph (igraph type) to an idx & dist representation
 nnGraph <- as_nn_graph(graph = veloviz$graph, k = 5)
 
 # input nnGraph to UMAP and plot
 par(mfrow = c(1,1))
+
 set.seed(0)
 emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
 
@@ -94,8 +98,8 @@ emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
 # # and send nnGraph as target data for supervised dimension reduction
 # emb.umap <- uwot::umap(X = pcs, y = nnGraph, min_dist = 0.5)
 
-rownames(emb.umap) <- rownames(pcs)
-plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
+rownames(emb.umap) <- rownames(emb.veloviz)
+plotEmbedding(emb.umap, colors = cell.cols[rownames(emb.umap)], main='UMAP',
               xlab = "UMAP X", ylab = "UMAP Y")
 
 # show velocities 
@@ -105,4 +109,4 @@ show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               cell.colors=cell.cols, main='UMAP')
+                               cell.colors=cell.cols[rownames(emb.umap)], main='UMAP')
