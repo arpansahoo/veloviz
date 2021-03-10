@@ -3,6 +3,7 @@ graphics.off()
 library(reticulate)
 library(veloviz)
 library(velocyto.R)
+library(tictoc)
 source("as_nn_graph.R")
 
 # clusters <- pancreas$clusters # cell type annotations
@@ -27,7 +28,7 @@ names(clusters) <- adata$obs_names$values
 
 #subsample to make things faster
 set.seed(0)
-good.cells <- sample(cells, 50)
+good.cells <- sample(cells, length(cells) / 2)
 spliced <- spliced[,good.cells]
 unspliced <- unspliced[,good.cells]
 clusters <- clusters[good.cells]
@@ -92,21 +93,28 @@ nnGraph <- as_nn_graph(graph = veloviz$graph, k = 5)
 par(mfrow = c(1,1))
 
 set.seed(0)
+tic('UMAP')
 emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+rownames(emb.umap) <- rownames(emb.veloviz)
+plotEmbedding(emb.umap, colors = cell.cols[rownames(emb.umap)], main='UMAP',
+              xlab = "UMAP X", ylab = "UMAP Y")
+toc()
 
 # # alternatively, we can send in pcs as input, 
 # # and send nnGraph as target data for supervised dimension reduction
 # emb.umap <- uwot::umap(X = pcs, y = nnGraph, min_dist = 0.5)
 
-rownames(emb.umap) <- rownames(emb.veloviz)
-plotEmbedding(emb.umap, colors = cell.cols[rownames(emb.umap)], main='UMAP',
-              xlab = "UMAP X", ylab = "UMAP Y")
-
-# show velocities 
+# Plot veloviz graph via force-directed graph drawing
 par(mfrow = c(1,1))
-show.velocity.on.embedding.cor(scale(emb.umap), vel,
-                               n = 50,
-                               scale='sqrt',
-                               cex=1, arrow.scale=1, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               cell.colors=cell.cols[rownames(emb.umap)], main='UMAP')
+tic('Veloviz')
+g = plotVeloviz(veloviz, clusters=clusters[rownames(emb.veloviz)], seed=0, verbose=TRUE)
+toc()
+
+# # show velocities 
+# par(mfrow = c(1,1))
+# show.velocity.on.embedding.cor(scale(emb.umap), vel,
+#                                n = 50,
+#                                scale='sqrt',
+#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
+#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
+#                                cell.colors=cell.cols[rownames(emb.umap)], main='UMAP')
