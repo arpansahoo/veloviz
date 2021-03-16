@@ -15,7 +15,7 @@ vel <- pancreas$vel # velocity
 # scv <- import("scvelo")
 # adata <- scv$datasets$pancreas()
 # 
-# #extract spliced, unspliced counts
+# # extract spliced, unspliced counts
 # spliced <- as.matrix(Matrix::t(adata$layers['spliced']))
 # unspliced <- as.matrix(Matrix::t(adata$layers['unspliced']))
 # cells <- adata$obs_names$values
@@ -23,18 +23,18 @@ vel <- pancreas$vel # velocity
 # colnames(spliced) <- colnames(unspliced) <- cells
 # rownames(spliced) <- rownames(unspliced) <- genes
 # 
-# #clusters
+# # clusters
 # clusters <- adata$obs$clusters
 # names(clusters) <- adata$obs_names$values
 # 
-# #subsample to make things faster
+# # subsample to make things faster
 # set.seed(0)
 # good.cells <- sample(cells, length(cells) / 2)
 # spliced <- spliced[,good.cells]
 # unspliced <- unspliced[,good.cells]
 # clusters <- clusters[good.cells]
 # 
-# #keep genes with >10 total counts
+# # keep genes with >10 total counts
 # good.genes <- genes[rowSums(spliced) > 10 & rowSums(unspliced) > 10]
 # spliced <- spliced[good.genes,]
 # unspliced = unspliced[good.genes,]
@@ -44,11 +44,11 @@ vel <- pancreas$vel # velocity
 # varnorm <- normalizeVariance(cpm) # variance stabilize, find overdispersed genes
 # lognorm <- log10(varnorm + 1) # log normalize
 # 
-# #PCA on centered and scaled expression of overdispersed genes
+# # PCA on centered and scaled expression of overdispersed genes
 # pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 # 
-# #cell distance in PC space
-# cell.dist <- as.dist(1-cor(t(pcs))) # cell distance in PC space
+# # cell distance in PC space
+# cell.dist <- as.dist(1-cor(t(pcs)))
 # 
 # # compute velocity
 # vel <- gene.relative.velocity.estimates(spliced,

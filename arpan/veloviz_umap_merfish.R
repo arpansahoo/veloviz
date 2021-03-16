@@ -34,8 +34,6 @@ curr.pnas <- curr[merfish.cycle.pnas,]
 proj.pnas <- proj[merfish.cycle.pnas,]
 
 # build VeloViz embedding using all genes
-par(mfrow = c(1,1))
-
 veloviz.all <- buildVeloviz(
   curr = curr,
   proj = proj,
@@ -54,19 +52,37 @@ veloviz.all <- buildVeloviz(
   verbose = FALSE
 )
 
+# Plot veloviz
 emb.all.vv = veloviz.all$fdg_coords
+plotEmbedding(emb.all.vv, colors = col[rownames(emb.all.vv)], main = 'all genes - veloviz')
 
-# UMAP
+# Normal UMAP
 set.seed(0)
-nnGraph.all <- as_nn_graph(graph = veloviz.all$graph, k = 100)
-
-emb.all.umap <- uwot::umap(X = NULL, nn_method = nnGraph.all, min_dist = 0.3)
-rownames(emb.all.umap) <- rownames(emb.all.vv)
-plotEmbedding(emb.all.umap, colors = col[rownames(emb.all.umap)], main = 'all genes - UMAP',
+emb.all.normalUMAP = umap::umap(pcs[,1:5], min_dist = 0.3)$layout
+rownames(emb.all.normalUMAP) = rownames(pcs)
+plotEmbedding(emb.all.normalUMAP, colors = col, main = 'all genes - UMAP (normal)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
+# UMAP (initialized with velo)
+set.seed(0)
+nnGraph.all <- as_nn_graph(graph = veloviz.all$graph, k = 100)
+emb.all.umap <- uwot::umap(X = NULL, nn_method = nnGraph.all, min_dist = 0.3)
+rownames(emb.all.umap) <- rownames(emb.all.vv)
+plotEmbedding(emb.all.umap, colors = col[rownames(emb.all.umap)], main = 'all genes - UMAP (velo)',
+              xlab = "UMAP X", ylab = "UMAP Y")
 
-# build VeloViz embedding using GO cell cycle genes
+# Build VeloViz embedding using GO cell cycle genes
+# first, reduce dimensions.
+curr.go.norm = normalizeDepth(curr.go)
+curr.go.norm = normalizeVariance(curr.go.norm, details = TRUE)
+curr.go.norm = log10(curr.go.norm$matnorm + 1)
+curr.go.pca = RSpectra::svds(A = t(as.matrix(curr.go.norm)), k = 50,
+                             opts = list(center = TRUE, scale = FALSE,
+                                         maxitr = 2000, tol = 1e-10))
+curr.go.pca = curr.go.pca$u
+rownames(curr.go.pca) = rownames(pcs)
+
+# Now, build embeddings.
 veloviz.go <- buildVeloviz(
   curr = curr.go,
   proj = proj.go,
@@ -85,21 +101,38 @@ veloviz.go <- buildVeloviz(
   verbose = FALSE
 )
 
+# Plot veloviz
 emb.go.vv <- veloviz.go$fdg_coords
+plotEmbedding(emb.go.vv, colors = col[rownames(emb.go.vv)],
+              main = 'GO cell cycle genes - veloviz')
 
-# UMAP
-par(mfrow = c(1,1))
+# Normal UMAP
+set.seed(0)
+emb.go.normalUMAP = umap::umap(curr.go.pca[,1:5], min_dist = 0.3)$layout
+rownames(emb.go.normalUMAP) = rownames(curr.go.pca)
+plotEmbedding(emb.go.normalUMAP, colors = col, main = 'GO cell cycle genes - UMAP (normal)',
+              xlab = "UMAP X", ylab = "UMAP Y")
 
+# UMAP (initialized with velo)
 set.seed(0)
 nnGraph.go <- as_nn_graph(graph = veloviz.go$graph, k = 20)
-
 emb.go.umap <- uwot::umap(X = NULL, nn_method = nnGraph.go, min_dist = 0.3)
 rownames(emb.go.umap) <- rownames(emb.go.vv)
-plotEmbedding(emb.go.umap, colors = col[rownames(emb.go.umap)], main = 'GO cell cycle genes - UMAP',
+plotEmbedding(emb.go.umap, colors = col[rownames(emb.go.umap)], main = 'GO cell cycle genes - UMAP (velo)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
 
 # build VeloViz embedding with cell-cycle dependent genes
+# first, reduce dimensions.
+curr.pnas.norm = normalizeDepth(curr.pnas)
+curr.pnas.norm = normalizeVariance(curr.pnas.norm, details = TRUE)
+curr.pnas.norm = log10(curr.pnas.norm$matnorm + 1)
+curr.pnas.pca = RSpectra::svds(A = t(as.matrix(curr.pnas.norm)), k = 50,
+                               opts = list(center = TRUE, scale = FALSE,
+                                           maxitr = 2000, tol = 1e-10))
+curr.pnas.pca = curr.pnas.pca$u
+rownames(curr.pnas.pca) = rownames(pcs)
+
 veloviz.pnas <- buildVeloviz(
   curr = curr.pnas,
   proj = proj.pnas,
@@ -118,16 +151,22 @@ veloviz.pnas <- buildVeloviz(
   verbose = FALSE
 )
 
+# Plot veloviz 
 emb.pnas.vv <- veloviz.pnas$fdg_coords
+plotEmbedding(emb.pnas.vv, colors = col[rownames(emb.pnas.vv)],
+              main = 'Xia et al cell cycle genes - veloviz')
 
-#UMAP
-par(mfrow = c(1,1))
-
+# Normal UMAP 
 set.seed(0)
-nnGraph.pnas <- as_nn_graph(graph = veloviz.pnas$graph, k = 50)
-
-emb.pnas.umap <- uwot::umap(X = NULL, nn_method = nnGraph.pnas, min_dist = 0.3)
-rownames(emb.pnas.umap) <- rownames(emb.pnas.vv)
-plotEmbedding(emb.pnas.umap, colors = col[rownames(emb.pnas.umap)], main = 'Xia et al cell cycle genes - UMAP',
+emb.pnas.normalUMAP = umap::umap(curr.pnas.pca[,1:5], min_dist = 0.3)$layout
+rownames(emb.pnas.normalUMAP) = rownames(curr.pnas.pca)
+plotEmbedding(emb.pnas.normalUMAP, colors = col, main = 'Xia et al cell cycle genes - UMAP (normal)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
+# UMAP (initialized with velo)
+set.seed(0)
+nnGraph.pnas <- as_nn_graph(graph = veloviz.pnas$graph, k = 50)
+emb.pnas.umap <- uwot::umap(X = NULL, nn_method = nnGraph.pnas, min_dist = 0.3)
+rownames(emb.pnas.umap) <- rownames(emb.pnas.vv)
+plotEmbedding(emb.pnas.umap, colors = col[rownames(emb.pnas.umap)], main = 'Xia et al cell cycle genes - UMAP (velo)',
+              xlab = "UMAP X", ylab = "UMAP Y")
