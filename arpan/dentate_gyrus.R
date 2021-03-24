@@ -36,80 +36,80 @@ lognorm = log10(varnorm + 1) # log normalize
 #pca
 pcs = reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 cell.dist = as.dist(1-cor(t(pcs))) 
-# 
-# 
-# # par(mfrow=c(2,2))
-# # emb.pca <- pcs[,1:2]
-# # plot(emb.pca, pch=16, col=col.clust, main='PCA')
-# # 
-# # #tSNE
-# # set.seed(0)
-# # emb.tsne = Rtsne::Rtsne(pcs, perplexity=30)$Y
-# # rownames(emb.tsne) = rownames(pcs)
-# # plot(emb.tsne, main='tSNE',pch = 16, col=col.clust,
-# #      xlab = "t-SNE X", ylab = "t-SNE Y")
-# # 
-# # ##UMAP
-# # set.seed(0)
-# # emb.umap = uwot::umap(pcs, min_dist = 0.5)
-# # rownames(emb.umap) <- rownames(pcs)
-# # plot(emb.umap, main='UMAP',pch = 16, col=col.clust,
-# #      xlab = "UMAP X", ylab = "UMAP Y")
-# # 
-# # ##diffusion map 
-# # set.seed(0)
-# # diffmap = destiny::DiffusionMap(pcs)
-# # emb.diffmap = destiny::eigenvectors(diffmap)[,1:2]
-# # row.names(emb.diffmap) = cells
-# # plot(emb.diffmap, pch = 16, col=col.clust, main = "Diffusion map")
-# 
-# ##velocity 
-# # vel = gene.relative.velocity.estimates(spliced,
-# #                                        unspliced,
-# #                                        kCells = 30,
-# #                                        cell.dist = cell.dist,
-# #                                        fit.quantile = 0.1)
-# # saveRDS(vel, file = "dentate_gyrus_vel01.rds")
+
+
+# par(mfrow=c(2,2))
+# emb.pca <- pcs[,1:2]
+# plot(emb.pca, pch=16, col=col.clust, main='PCA')
+
+# #tSNE
+# set.seed(0)
+# emb.tsne = Rtsne::Rtsne(pcs, perplexity=30)$Y
+# rownames(emb.tsne) = rownames(pcs)
+# plot(emb.tsne, main='tSNE',pch = 16, col=col.clust,
+#      xlab = "t-SNE X", ylab = "t-SNE Y")
+
+# ##UMAP
+# set.seed(0)
+# emb.umap = uwot::umap(pcs, min_dist = 0.5)
+# rownames(emb.umap) <- rownames(pcs)
+# plot(emb.umap, main='UMAP',pch = 16, col=col.clust,
+#      xlab = "UMAP X", ylab = "UMAP Y")
+
+# ##diffusion map 
+# set.seed(0)
+# diffmap = destiny::DiffusionMap(pcs)
+# emb.diffmap = destiny::eigenvectors(diffmap)[,1:2]
+# row.names(emb.diffmap) = cells
+# plot(emb.diffmap, pch = 16, col=col.clust, main = "Diffusion map")
+
+# #velocity 
+# vel = gene.relative.velocity.estimates(spliced,
+#                                        unspliced,
+#                                        kCells = 30,
+#                                        cell.dist = cell.dist,
+#                                        fit.quantile = 0.1)
+# saveRDS(vel, file = "dentate_gyrus_vel01.rds")
 vel <- readRDS(file = "dentate_gyrus_vel01.rds")
-# curr <- vel$current
-# proj <- vel$projected
-# 
-# 
-# ##build veloviz 
-# 
-# ##final 
-# veloviz1 <- buildVeloviz(
-#   curr = curr, 
-#   proj = proj,
-#   normalize.depth = TRUE,
-#   use.ods.genes = FALSE,
-#   alpha = 0.05,
-#   pca = TRUE,
-#   nPCs = 10,
-#   center = TRUE,
-#   scale = TRUE,
-#   k = 100, #100
-#   similarity.threshold = 0,
-#   distance.weight = 1,
-#   distance.threshold = 0.9, #0.7
-#   weighted = TRUE,
-#   seed = 0,
-#   verbose = FALSE
-# )
-# 
-# emb.veloviz1 = veloviz1$fdg_coords
-# par(mfrow=c(1,1))
-# plot(emb.veloviz1, pch=16, col=col.clust[rownames(emb.veloviz1)])
-# legend(x=9.5, y=-7.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.8, ncol=3)
-# 
-# show.velocity.on.embedding.cor(emb.veloviz1, vel,
-#                                n = 50,
-#                                scale='rank',
-#                                cex=1, arrow.scale=2, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
-#                                cell.colors=col.clust, main='VeloViz')
-# legend(x=10, y=-8, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=2)
-# 
+curr <- vel$current
+proj <- vel$projected
+
+
+##build veloviz 
+
+##final 
+veloviz1 <- buildVeloviz(
+  curr = curr, 
+  proj = proj,
+  normalize.depth = TRUE,
+  use.ods.genes = FALSE,
+  alpha = 0.05,
+  pca = TRUE,
+  nPCs = 10,
+  center = TRUE,
+  scale = TRUE,
+  k = 100, #100
+  similarity.threshold = 0,
+  distance.weight = 1,
+  distance.threshold = 0.9, #0.7
+  weighted = TRUE,
+  seed = 0,
+  verbose = FALSE
+)
+
+emb.veloviz1 = veloviz1$fdg_coords
+par(mfrow=c(1,1))
+plot(emb.veloviz1, pch=16, col=col.clust[rownames(emb.veloviz1)])
+legend(x=9.5, y=-7.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.8, ncol=3)
+
+show.velocity.on.embedding.cor(emb.veloviz1, vel,
+                               n = 50,
+                               scale='rank',
+                               cex=1, arrow.scale=2, show.grid.flow=TRUE,
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
+                               cell.colors=col.clust, main='VeloViz')
+legend(x=10, y=-8, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=2)
+
 
 ##UMAP
 set.seed(0)
@@ -130,22 +130,22 @@ legend(x=-18, y=19.5, legend = unique(clusters), col = unique(col.clust), pch=16
 
 
 
-# # Convert veloviz$graph (igraph type) to an idx & dist representation
-# nnGraph <- as_nn_graph(graph = veloviz1$graph, k = 100)
-# 
-# # input nnGraph to UMAP and plot
-# set.seed(0)
-# emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
-# rownames(emb.umapVelo) <- rownames(emb.veloviz1)
-# plot(emb.umapVelo, pch=16, col=col.clust[rownames(emb.umapVelo)], main = 'UMAP (initialized with veloviz)', xlab = "UMAP X", ylab = "UMAP Y")
-# legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
-# 
-# 
-# show.velocity.on.embedding.cor(emb.umapVelo, vel,
-#                                n = 50,
-#                                scale='rank',
-#                                cex=1, arrow.scale=2, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
-#                                cell.colors=col.clust, main='UMAP (initialized with veloviz)')
-# legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
-# 
+# Convert veloviz$graph (igraph type) to an idx & dist representation
+nnGraph <- as_nn_graph(graph = veloviz1$graph, k = 100)
+
+# input nnGraph to UMAP and plot
+set.seed(0)
+emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+rownames(emb.umapVelo) <- rownames(emb.veloviz1)
+plot(emb.umapVelo, pch=16, col=col.clust[rownames(emb.umapVelo)], main = 'UMAP (initialized with veloviz)', xlab = "UMAP X", ylab = "UMAP Y")
+legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
+
+
+show.velocity.on.embedding.cor(emb.umapVelo, vel,
+                               n = 50,
+                               scale='rank',
+                               cex=1, arrow.scale=2, show.grid.flow=TRUE,
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
+                               cell.colors=col.clust, main='UMAP (initialized with veloviz)')
+legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
+
