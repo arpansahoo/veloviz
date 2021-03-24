@@ -1,4 +1,4 @@
-Inputting VeloViz nearest neighbors into other embeddings, such as UMAP
+Inputting VeloViz nearest neighbors into UMAP
 ===========================
 
 In this example, we will use Veloviz to produce a velocity-informed 2D

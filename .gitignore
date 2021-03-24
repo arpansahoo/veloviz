@@ -9,3 +9,4 @@ data/Pancreas
 # arpan/
 arpan/.RDataTmp
 *.h5ad
+*.rds
