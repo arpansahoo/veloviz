@@ -14,6 +14,12 @@
 #' @return `all_dists` cells x cells matrix of all pairwise composite distances
 #' @return `dist_comp` components of composite distance: `invDist` distance component, `negSim` similarity component 
 #' 
+#' @examples 
+#' curr <- pancreas$vel$current
+#' proj <- pancreas$vel$projected
+#' 
+#' projectedNeighbors(curr, proj, 15)
+#' 
 #' @seealso \code{\link{graphViz}}
 #' 
 #' @export
@@ -120,6 +126,24 @@ projectedNeighbors = function(observed,projected,k,distance_metric="L2",similari
 #' @return `fdg_coords` cells (rows) x 2 coordinates of force-directed layout of VeloViz graph
 #' @return `projectedNeighbors` output of `projectedNeighbors`
 #' 
+#' @examples 
+#' vel = pancreas$vel
+#' curr = vel$current
+#' proj = vel$projected
+#' 
+#' m <- log10(curr+1)
+#' pca <- RSpectra::svds(A = Matrix::t(m), k=50,
+#' opts = list(center = FALSE, scale = FALSE, maxitr = 2000, tol = 1e-10))
+#' pca.curr <- Matrix::t(m) %*% pca$v[,1:20]
+#' 
+#' m <- log10(proj+1)
+#' pca.proj <- Matrix::t(m) %*% pca$v[,1:20]
+#' 
+#' graphViz(t(pca.curr), t(pca.proj), k=15,
+#' cell.colors=NA, similarity_threshold=0, distance_weight = 1, 
+#' distance_threshold = 1, weighted = TRUE, remove_unconnected = TRUE, 
+#' plot = FALSE, return_graph = TRUE)
+#' 
 #' @seealso \code{\link{projectedNeighbors}}
 #' 
 #' @export
@@ -213,33 +237,3 @@ graphViz = function(observed, projected, k, distance_metric = "L2", similarity_m
   
 }
 
-#' Velocity consistency score calculation
-#' 
-#' @param fdg.coords cell coordinates (cells = rows) in 2D embedding for which to compute velocity consistency score
-#' @param delta.exp gene (rows) x cell (columns) matrix of gene velocities 
-#' @param nNeighbors number of neighbors to average when calculating velocity correlation
-#' @param plot.hist logical to plot histogram of cell velocity consistence scores, default = FALSE
-#' 
-#' @return vector of length equal to number of cells of cell velocity consistency scores
-#'
-#' @export
-#'
-consistency = function(fdg.coords,delta.exp,nNeighbors,plot.hist = FALSE){
-  #fdg.coords: coordinates of FDG in which consistency score is to be evaluated
-  #delta.exp: change in gene expression based on velocity (part of velocyto output)
-  #nNeighbors: number of nearest neighbors in FDG to find and calculate correlation with
-
-
-  ncells = nrow(fdg.coords)
-  cell.names = row.names(fdg.coords)
-  neighbors = nn2(fdg.coords,k=nNeighbors+1)$nn.idx[,2:(nNeighbors+1)] # nNeighbors nearest neighbors to each cell: nCells x nNeighbors
-  #neighbor.cors = t(sapply(seq(1:ncells), function(i) sapply(seq(1:nNeighbors), function(n) cor(delta.exp[,i],delta.exp[,neighbors[i,n]]))))  #### convert to c++
-  neighbor.cors = pwiseCors(as.matrix(delta.exp),neighbors,nNeighbors)
-  rownames(neighbor.cors) = cell.names
-  cell.consistency = rowMeans(neighbor.cors)
-
-  if (plot.hist){
-    hist(cell.consistency,breaks = 100)
-  }
-  return(cell.consistency)
-}
