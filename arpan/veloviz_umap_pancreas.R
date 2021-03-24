@@ -134,8 +134,10 @@ score.veloviz <- consistency(emb.veloviz, vel$deltaE, nNeighbors = 10, plot.hist
 score.umap <- consistency(emb.umap, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
 score.normalUMAP <- consistency(emb.normalUMAP, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
 
-ks.test(score.veloviz, score.umap, alternative = "two.sided") # are veloviz and umap-velo different?
-ks.test(score.veloviz, score.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
-ks.test(score.umap, score.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
+# if CDF of x lies above that of y, then x has worse consistency than y
 
-  
+ks.test(score.veloviz, score.umap, alternative = "two.sided") 
+ks.test(score.veloviz, score.umap, alternative = "greater") 
+ks.test(score.veloviz, score.umap, alternative = "less") 
+ks.test(score.veloviz, score.normalUMAP, alternative = "greater")
+ks.test(score.umap, score.normalUMAP, alternative = "greater")

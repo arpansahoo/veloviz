@@ -73,39 +73,16 @@ rownames(emb.all.umap) <- rownames(emb.all.vv)
 plotEmbedding(emb.all.umap, colors = col[rownames(emb.all.umap)], main = 'all genes - UMAP (velo)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
-# # Show velocities
-# show.velocity.on.embedding.cor(scale(emb.all.vv), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.all.vv)],
-#                                main='Veloviz - all')
-# show.velocity.on.embedding.cor(scale(emb.all.normalUMAP), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col,
-#                                main='UMAP (normal) - all')
-# show.velocity.on.embedding.cor(scale(emb.all.umap), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.all.umap)],
-#                                main='UMAP (velo) - all')
+# # Consistency scores
+# deltaExp.all <- vel$deltaE
+# score.all.veloviz <- consistency(emb.all.vv, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
+# score.all.umap <- consistency(emb.all.umap, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
+# score.all.normalUMAP <- consistency(emb.all.normalUMAP, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
 
-# Consistency scores
-deltaExp.all <- vel$deltaE
-score.all.veloviz <- consistency(emb.all.vv, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
-score.all.umap <- consistency(emb.all.umap, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
-score.all.normalUMAP <- consistency(emb.all.normalUMAP, deltaExp.all, nNeighbors = 10, plot.hist = FALSE)
-
-ks.test(score.all.veloviz, score.all.umap, alternative = "two.sided") # are veloviz and umap-velo different?
-ks.test(score.all.veloviz, score.all.umap, alternative = "greater") # is veloviz better than umap-velo?
-ks.test(score.all.veloviz, score.all.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
-ks.test(score.all.umap, score.all.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
+# ks.test(score.all.veloviz, score.all.umap, alternative = "two.sided") # are veloviz and umap-velo different?
+# ks.test(score.all.veloviz, score.all.umap, alternative = "greater") # is veloviz better than umap-velo?
+# ks.test(score.all.veloviz, score.all.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
+# ks.test(score.all.umap, score.all.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
 
 
 # Build VeloViz embedding using GO cell cycle genes
@@ -158,39 +135,16 @@ rownames(emb.go.umap) <- rownames(emb.go.vv)
 plotEmbedding(emb.go.umap, colors = col[rownames(emb.go.umap)], main = 'GO cell cycle genes - UMAP (velo)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
-# # Show velocities
-# show.velocity.on.embedding.cor(scale(emb.go.vv), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.go.vv)],
-#                                main='Veloviz - go')
-# show.velocity.on.embedding.cor(scale(emb.go.normalUMAP), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col,
-#                                main='UMAP (normal) - go')
-# show.velocity.on.embedding.cor(scale(emb.go.umap), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.go.umap)],
-#                                main='UMAP (velo) - go')
+# # Consistency scores
+# deltaExp.go <- vel$deltaE[merfish.cycle.go,]
+# score.go.veloviz <- consistency(emb.go.vv, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
+# score.go.umap <- consistency(emb.go.umap, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
+# score.go.normalUMAP <- consistency(emb.go.normalUMAP, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
 
-# Consistency scores
-deltaExp.go <- vel$deltaE[merfish.cycle.go,]
-score.go.veloviz <- consistency(emb.go.vv, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
-score.go.umap <- consistency(emb.go.umap, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
-score.go.normalUMAP <- consistency(emb.go.normalUMAP, deltaExp.go, nNeighbors = 10, plot.hist = FALSE)
-
-ks.test(score.go.veloviz, score.go.umap, alternative = "two.sided") # are veloviz and umap-velo different?
-ks.test(score.go.veloviz, score.go.umap, alternative = "greater") # is veloviz better than umap-velo?
-ks.test(score.go.veloviz, score.go.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
-ks.test(score.go.umap, score.go.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
+# ks.test(score.go.veloviz, score.go.umap, alternative = "two.sided") # are veloviz and umap-velo different?
+# ks.test(score.go.veloviz, score.go.umap, alternative = "greater") # is veloviz better than umap-velo?
+# ks.test(score.go.veloviz, score.go.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
+# ks.test(score.go.umap, score.go.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
 
 
 # build VeloViz embedding with cell-cycle dependent genes
@@ -242,36 +196,13 @@ rownames(emb.pnas.umap) <- rownames(emb.pnas.vv)
 plotEmbedding(emb.pnas.umap, colors = col[rownames(emb.pnas.umap)], main = 'Xia et al cell cycle genes - UMAP (velo)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
-# # Show velocities
-# show.velocity.on.embedding.cor(scale(emb.pnas.vv), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.pnas.vv)],
-#                                main='Veloviz - pnas')
-# show.velocity.on.embedding.cor(scale(emb.pnas.normalUMAP), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col,
-#                                main='UMAP (normal) - pnas')
-# show.velocity.on.embedding.cor(scale(emb.pnas.umap), vel,
-#                                n = 50,
-#                                scale='sqrt',
-#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-#                                cell.colors = col[rownames(emb.pnas.umap)],
-#                                main='UMAP (velo) - pnas')
+# # Consistency scores
+# deltaExp.pnas <- vel$deltaE[merfish.cycle.pnas,]
+# score.pnas.veloviz <- consistency(emb.pnas.vv, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
+# score.pnas.umap <- consistency(emb.pnas.umap, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
+# score.pnas.normalUMAP <- consistency(emb.pnas.normalUMAP, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
 
-# Consistency scores
-deltaExp.pnas <- vel$deltaE[merfish.cycle.pnas,]
-score.pnas.veloviz <- consistency(emb.pnas.vv, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
-score.pnas.umap <- consistency(emb.pnas.umap, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
-score.pnas.normalUMAP <- consistency(emb.pnas.normalUMAP, deltaExp.pnas, nNeighbors = 10, plot.hist = FALSE)
-
-ks.test(score.pnas.veloviz, score.pnas.umap, alternative = "two.sided") # are veloviz and umap-velo different?
-ks.test(score.pnas.veloviz, score.pnas.umap, alternative = "greater") # is veloviz better than umap-velo?
-ks.test(score.pnas.veloviz, score.pnas.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
-ks.test(score.pnas.umap, score.pnas.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
+# ks.test(score.pnas.veloviz, score.pnas.umap, alternative = "two.sided") # are veloviz and umap-velo different?
+# ks.test(score.pnas.veloviz, score.pnas.umap, alternative = "greater") # is veloviz better than umap-velo?
+# ks.test(score.pnas.veloviz, score.pnas.normalUMAP, alternative = "greater") # is veloviz better than normal UMAP?
+# ks.test(score.pnas.umap, score.pnas.normalUMAP, alternative = "greater") # is umap-velo better than normal UMAP?
