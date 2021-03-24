@@ -43,6 +43,13 @@ rownames(spliced) <- rownames(unspliced) <- genes
 #clusters
 clusters <- adata$obs$clusters
 names(clusters) <- adata$obs_names$values
+
+# subsample to make things faster
+set.seed(0)
+good.cells <- sample(cells, length(cells) / 2)
+spliced <- spliced[,good.cells]
+unspliced <- unspliced[,good.cells]
+clusters <- clusters[good.cells]
 ```
 
 1.) Filter good genes
@@ -133,8 +140,8 @@ Here we will do UMAP as normal on the PC data.
 ``` r
 # UMAP
 set.seed(0)
-emb.normalUMAP = uwot::umap(pcs, min_dist = 0.5)
-rownames(emb.normalUMAP) <- rownames(pcs)
+emb.umap = uwot::umap(pcs, min_dist = 0.5)
+rownames(emb.umap) <- rownames(pcs)
 ```
 
 UMAP initialized with VeloViz nearest neighbors
@@ -193,8 +200,8 @@ nnGraph <- as_nn_graph(graph = veloviz$graph, k = 5)
 
 # input nnGraph to UMAP and plot
 set.seed(0)
-emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
-rownames(emb.umap) <- rownames(emb.veloviz)
+emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+rownames(emb.umapVelo) <- rownames(emb.veloviz)
 ```
 
 Compare embeddings
@@ -209,16 +216,20 @@ plotEmbedding(emb.veloviz,
               main='VeloViz')
 
 # UMAP on PC data
-plotEmbedding(emb.normalUMAP, colors = cell.cols, 
+plotEmbedding(emb.umap, colors = cell.cols, 
               main='UMAP',
               xlab = "UMAP X", ylab = "UMAP Y")
               
 # UMAP initialized with VeloViz nearest neighbors
-plotEmbedding(emb.umap,
-              colors = cell.cols[rownames(emb.umap)],
+plotEmbedding(emb.umapVelo,
+              colors = cell.cols[rownames(emb.umapVelo)],
               main = 'UMAP (initialized with VeloViz)', 
               xlab = "UMAP X", ylab = "UMAP Y")
 ```
+
+Veloviz                    |  UMAP                     |  UMAP (initialized with VeloViz)
+:-------------------------:|:-------------------------:|:-------------------------:
+![](umap_files/figure-markdown_strict/pancreasVeloviz.png) | ![](umap_files/figure-markdown_strict/pancreasUMAP.png) | ![](umap_files/figure-markdown_strict/pancreasUMAPVelo.png) 
 
 Now let’s project velocity inferred from `velocyto.R` onto these
 embeddings.
@@ -235,7 +246,7 @@ show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                arrow.lwd=1, do.par=FF, 
                                cell.colors=cell.cols, main='VeloViz')
 
-show.velocity.on.embedding.cor(scale(emb.normalUMAP), vel,
+show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                n=50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
@@ -243,14 +254,16 @@ show.velocity.on.embedding.cor(scale(emb.normalUMAP), vel,
                                arrow.lwd=1, do.par=F,
                                cell.colors=cell.cols, main='UMAP')
 
-show.velocity.on.embedding.cor(scale(emb.umap), vel,
+show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                n=50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, 
                                arrow.lwd=1, do.par=F,
-                               cell.colors=cell.cols[rownames(emb.umap)],
+                               cell.colors=cell.cols[rownames(emb.umapVelo)],
                                main='UMAP (initialized with VeloViz)')
 ```
 
-
+Veloviz                    |  UMAP                     |  UMAP (initialized with VeloViz)
+:-------------------------:|:-------------------------:|:-------------------------:
+![](umap_files/figure-markdown_strict/pancreasVeloviz_withArrows.png) | ![](umap_files/figure-markdown_strict/pancreasUMAP_withArrows.png) | ![](umap_files/figure-markdown_strict/pancreasUMAPVelo_withArrows.png) 

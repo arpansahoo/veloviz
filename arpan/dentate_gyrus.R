@@ -1,9 +1,9 @@
 library(veloviz)
 library(reticulate)
 library(velocyto.R)
+source("as_nn_graph.R")
 
 scv <- import("scvelo")
-plt  = import('matplotlib.pyplot')
 adata <- scv$datasets$dentategyrus()
 
 #extract spliced, unspliced counts
@@ -40,7 +40,7 @@ cell.dist = as.dist(1-cor(t(pcs)))
 
 par(mfrow=c(2,2))
 emb.pca <- pcs[,1:2]
-plot(emb.pca, pch=16, col=col.clust)
+plot(emb.pca, pch=16, col=col.clust, main='PCA')
 
 #tSNE
 set.seed(0)
@@ -79,7 +79,8 @@ proj <- vel$projected
 
 ##final 
 veloviz1 <- buildVeloviz(
-  curr = curr, proj = proj,
+  curr = curr, 
+  proj = proj,
   normalize.depth = TRUE,
   use.ods.genes = FALSE,
   alpha = 0.05,
@@ -101,12 +102,32 @@ par(mfrow=c(1,1))
 plot(emb.veloviz1, pch=16, col=col.clust[rownames(emb.veloviz1)])
 legend(x=9.5, y=-7.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.8, ncol=3)
 
-show.velocity.on.embedding.cor(emb.veloviz1, vel, 
+show.velocity.on.embedding.cor(emb.veloviz1, vel,
                                n = 50,
                                scale='rank',
                                cex=1, arrow.scale=2, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
                                cell.colors=col.clust, main='VeloViz')
 legend(x=10, y=-8, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=2)
+# 
 
+
+# Convert veloviz$graph (igraph type) to an idx & dist representation
+nnGraph <- as_nn_graph(graph = veloviz1$graph, k = 100)
+
+# input nnGraph to UMAP and plot
+set.seed(0)
+emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+rownames(emb.umapVelo) <- rownames(emb.veloviz1)
+plot(emb.umapVelo, pch=16, col=col.clust[rownames(emb.umapVelo)], main = 'UMAP (initialized with veloviz)', xlab = "UMAP X", ylab = "UMAP Y")
+legend(x=-7.5, y=4, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=2)
+
+
+show.velocity.on.embedding.cor(emb.umapVelo, vel,
+                               n = 50,
+                               scale='rank',
+                               cex=1, arrow.scale=2, show.grid.flow=TRUE,
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
+                               cell.colors=col.clust, main='UMAP (initialized with veloviz)')
+legend(x=-7.5, y=1.7, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=2)
 

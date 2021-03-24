@@ -10,3 +10,5 @@ data/Pancreas
 arpan/.RDataTmp
 *.h5ad
 *.rds
+*.pdf
+arpan/vignette.html

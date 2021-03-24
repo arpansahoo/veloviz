@@ -2,9 +2,7 @@ graphics.off()
 
 library(reticulate)
 library(veloviz)
-library(RANN)
 library(velocyto.R)
-library(tictoc)
 source("as_nn_graph.R")
 
 # clusters <- pancreas$clusters # cell type annotations
@@ -90,9 +88,9 @@ plotEmbedding(emb.veloviz, groups=clusters[rownames(emb.veloviz)], main='veloviz
 
 # UMAP (normal)
 set.seed(0)
-emb.normalUMAP = uwot::umap(pcs, min_dist = 0.5)
-rownames(emb.normalUMAP) <- rownames(pcs)
-plotEmbedding(emb.normalUMAP, colors = cell.cols, main='UMAP (normal)',
+emb.umap = uwot::umap(pcs, min_dist = 0.5)
+rownames(emb.umap) <- rownames(pcs)
+plotEmbedding(emb.umap, colors = cell.cols, main='UMAP (normal)',
               xlab = "UMAP X", ylab = "UMAP Y")
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
@@ -100,10 +98,10 @@ nnGraph <- as_nn_graph(graph = veloviz$graph, k = 5)
 
 # input nnGraph to UMAP and plot
 set.seed(0)
-emb.umap <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
-rownames(emb.umap) <- rownames(emb.veloviz)
-plotEmbedding(emb.umap,
-              colors = cell.cols[rownames(emb.umap)],
+emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+rownames(emb.umapVelo) <- rownames(emb.veloviz)
+plotEmbedding(emb.umapVelo,
+              colors = cell.cols[rownames(emb.umapVelo)],
               main = 'UMAP (initialized with veloviz)', xlab = "UMAP X", ylab = "UMAP Y")
 
 # show velocities
@@ -114,30 +112,31 @@ show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                cell.colors=cell.cols, main='VeloViz')
 
-show.velocity.on.embedding.cor(scale(emb.normalUMAP), vel,
+show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                cell.colors=cell.cols, main='UMAP (normal)')
 
-show.velocity.on.embedding.cor(scale(emb.umap), vel,
+show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-                               cell.colors = cell.cols[rownames(emb.umap)],
+                               cell.colors = cell.cols[rownames(emb.umapVelo)],
                                main='UMAP (initialized with veloviz)')
 
-# Consistency scores
-score.veloviz <- consistency(emb.veloviz, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-score.umap <- consistency(emb.umap, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-score.normalUMAP <- consistency(emb.normalUMAP, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-
-# if CDF of x lies above that of y, then x has worse consistency than y
-
-ks.test(score.veloviz, score.umap, alternative = "two.sided") 
-ks.test(score.veloviz, score.umap, alternative = "greater") 
-ks.test(score.veloviz, score.umap, alternative = "less") 
-ks.test(score.veloviz, score.normalUMAP, alternative = "greater")
-ks.test(score.umap, score.normalUMAP, alternative = "greater")
+# # Consistency scores
+# library(RANN)
+# score.veloviz <- consistency(emb.veloviz, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
+# score.umapVelo <- consistency(emb.umapVelo, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
+# score.umap <- consistency(emb.umap, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
+# 
+# # if CDF of x lies above that of y, then x has worse consistency than y
+# 
+# ks.test(score.veloviz, score.umapVelo, alternative = "two.sided") 
+# ks.test(score.veloviz, score.umapVelo, alternative = "greater") 
+# ks.test(score.veloviz, score.umapVelo, alternative = "less") 
+# ks.test(score.veloviz, score.umap, alternative = "greater")
+# ks.test(score.umapVelo, score.umap, alternative = "greater")
