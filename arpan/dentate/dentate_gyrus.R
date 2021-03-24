@@ -1,7 +1,7 @@
 library(veloviz)
 library(reticulate)
 library(velocyto.R)
-source("as_nn_graph.R")
+source("../as_nn_graph.R")
 
 scv <- import("scvelo")
 adata <- scv$datasets$dentategyrus()
