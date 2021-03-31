@@ -37,11 +37,23 @@ for (n in c(1:length(sample.size))){
   for (r in c(1:3)){
     print(paste("r = ",r))
     curr.cells <- curr.size.samples[[r]]
-    pcs <- pcs[curr.cells,]
-    cell.dist <- as.dist(1-cor(t(pcs)))
+    #pcs <- pcs[curr.cells,]
+    #cell.dist <- as.dist(1-cor(t(pcs[curr.cells,])))
 
     curr.s <- s[,curr.cells]
     curr.u <- u[,curr.cells]
+
+    all <- curr.s + curr.u
+   
+    #normalize 
+    cpm <- normalizeDepth(all)
+    varnorm <- normalizeVariance(cpm)
+    lognorm <- log10(varnorm + 1)
+
+    #pca
+    pcs <- reduceDimensions(lognorm, center = T, scale = T, nPCs = 50)
+
+    cell.dist <- as.dist(1-cor(t(pcs)))
 
     vel <- gene.relative.velocity.estimates(curr.s,curr.u,kCells = 30, cell.dist = cell.dist, fit.quantile = 0.1)
 
