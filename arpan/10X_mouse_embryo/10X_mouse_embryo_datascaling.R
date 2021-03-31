@@ -120,7 +120,8 @@ figtheme <-  theme_bw(base_size = 18) +
         legend.position = 'none')
 
 p <- ggplot(vv.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) + 
-  geom_point(colour = "red", size = 3) + 
+  geom_point(colour = "red", size=4, shape=4) + 
+  stat_summary(fun=mean, geom="line", colour="black", size = 1) +
   figtheme
 
 p

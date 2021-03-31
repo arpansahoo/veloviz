@@ -3,6 +3,8 @@ graphics.off()
 library(reticulate)
 library(veloviz)
 library(velocyto.R)
+library(viridis)
+library(igraph)
 source("as_nn_graph.R")
 
 # clusters <- pancreas$clusters # cell type annotations
@@ -45,19 +47,34 @@ lognorm <- log10(varnorm + 1) # log normalize
 # PCA on centered and scaled expression of overdispersed genes
 pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 
-# cell distance in PC space
-cell.dist <- as.dist(1-cor(t(pcs)))
-
-# compute velocity
-vel <- gene.relative.velocity.estimates(spliced,
-                                        unspliced,
-                                        kCells = 30,
-                                        cell.dist = cell.dist,
-                                        fit.quantile = 0.1)
+# # cell distance in PC space
+# cell.dist <- as.dist(1-cor(t(pcs)))
+# 
+# # compute velocity
+# vel <- gene.relative.velocity.estimates(spliced,
+#                                         unspliced,
+#                                         kCells = 30,
+#                                         cell.dist = cell.dist,
+#                                         fit.quantile = 0.1)
+# saveRDS(vel, file = "pancreas_vel.rds")
+vel <- readRDS(file = "pancreas_vel.rds")
 
 # choose colors based on clusters for plotting later
-cell.cols <- rainbow(8)[as.numeric(clusters)]
-names(cell.cols) <- names(clusters)
+col = rev(plasma(length(levels(clusters))))
+cell.cols = col[clusters] 
+names(cell.cols) = names(clusters)
+
+pdf("pancreas_legend.pdf")
+par(mfrow=c(1,1))
+plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='')
+# uniqueCols <- unique(cell.cols)
+# orderCols <- rev(order(uniqueCols))
+legend("topleft", 
+       legend = unique(clusters)[c(2, 3, 5, 1, 4, 6, 8, 7)],
+       col = uniqueCols[c(2, 3, 5, 1, 4, 6, 8, 7)],
+       pch=16, cex=0.7, ncol=1)
+dev.off()
+
 
 # build VeloViz embedding
 curr <- vel$current
@@ -72,7 +89,7 @@ veloviz <- buildVeloviz(
   nPCs = 20,
   center = TRUE,
   scale = TRUE,
-  k = 5,
+  k = 20,
   similarity.threshold = 0.25,
   distance.weight = 1,
   distance.threshold = 0.5,
@@ -82,19 +99,23 @@ veloviz <- buildVeloviz(
 )
 
 # Plot veloviz
+pdf("pancreas_1.pdf")
+
 emb.veloviz = veloviz$fdg_coords
-plotEmbedding(emb.veloviz, groups=clusters[rownames(emb.veloviz)], main='veloviz')
-# plotVeloviz(veloviz, clusters=clusters[rownames(emb.veloviz)], seed=0, verbose=TRUE)
+par(mfrow=c(1,1))
+plotEmbedding(emb.veloviz, 
+              colors=cell.cols[rownames(emb.veloviz)],
+              main='VeloViz', xlab="VeloViz X", ylab = "VeloViz Y")
 
 # UMAP (normal)
 set.seed(0)
 emb.umap = uwot::umap(pcs, min_dist = 0.5)
 rownames(emb.umap) <- rownames(pcs)
-plotEmbedding(emb.umap, colors = cell.cols, main='UMAP (normal)',
+plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
               xlab = "UMAP X", ylab = "UMAP Y")
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
-nnGraph <- as_nn_graph(graph = veloviz$graph, k = 5)
+nnGraph <- as_nn_graph(graph = veloviz$graph, k = 20)
 
 # input nnGraph to UMAP and plot
 set.seed(0)
@@ -102,41 +123,36 @@ emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
 rownames(emb.umapVelo) <- rownames(emb.veloviz)
 plotEmbedding(emb.umapVelo,
               colors = cell.cols[rownames(emb.umapVelo)],
-              main = 'UMAP (initialized with veloviz)', xlab = "UMAP X", ylab = "UMAP Y")
+              main = 'UMAP with VeloViz', xlab = "UMAP X", ylab = "UMAP Y")
 
 # show velocities
+par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               cell.colors=cell.cols, main='VeloViz')
+                               frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="VeloViz X", ylab='VeloViz Y',
+                               cell.colors=scales::alpha(cell.cols[rownames(emb.veloviz)], 0.4), main='VeloViz')
+# legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.veloviz)]), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               cell.colors=cell.cols, main='UMAP (normal)')
+                               frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
+                               cell.colors=scales::alpha(cell.cols,0.4), main='UMAP')
+# legend(x=-1.65, y=-0.5, legend = unique(clusters), col = unique(cell.cols), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-                               cell.colors = cell.cols[rownames(emb.umapVelo)],
-                               main='UMAP (initialized with veloviz)')
+                               cell.colors = scales::alpha(cell.cols[rownames(emb.umapVelo)], 0.4),
+                               frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
+                               main='UMAP with VeloViz')
+# legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
 
-# # Consistency scores
-# library(RANN)
-# score.veloviz <- consistency(emb.veloviz, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-# score.umapVelo <- consistency(emb.umapVelo, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-# score.umap <- consistency(emb.umap, vel$deltaE, nNeighbors = 10, plot.hist = TRUE)
-# 
-# # if CDF of x lies above that of y, then x has worse consistency than y
-# 
-# ks.test(score.veloviz, score.umapVelo, alternative = "two.sided") 
-# ks.test(score.veloviz, score.umapVelo, alternative = "greater") 
-# ks.test(score.veloviz, score.umapVelo, alternative = "less") 
-# ks.test(score.veloviz, score.umap, alternative = "greater")
-# ks.test(score.umapVelo, score.umap, alternative = "greater")
+dev.off()

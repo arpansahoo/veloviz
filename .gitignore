@@ -12,3 +12,4 @@ arpan/.RDataTmp
 *.rds
 *.pdf
 arpan/vignette.html
+arpan/10X_mouse_embryo/.RDataTmp
