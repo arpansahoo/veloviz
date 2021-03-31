@@ -18,18 +18,17 @@ rownames(spliced) <- rownames(unspliced) <- genes
 #clusters
 clusters <- adata$obs$clusters
 names(clusters) <- adata$obs_names$values
-col = rev(plasma(length(levels(clusters))))
-col.clust = col[clusters] 
+col.clust <- rainbow(length(table(clusters)))[as.numeric(clusters)]
 names(col.clust) <- cells
 
-pdf("dentate_legend.pdf")
-par(mfrow=c(1,1))
-plot(NULL,xaxt='n',yaxt='n',bty='n',ylab='',xlab='')
+# pdf("dentate_legend.pdf")
+# par(mfrow=c(1,1))
+# plot(NULL,xaxt='n',yaxt='n',bty='n',ylab='',xlab='')
 # uniqueCols <- unique(col.clust[rownames(emb.veloviz1)])
 # order <- order(uniqueCols)
 # order <- c(14,2,7,12,4,13,5,3,1,9,10,8,6,11)
-legend("topleft", legend = unique(clusters)[order], col = uniqueCols[order], pch=16, cex=0.7, ncol=1)
-dev.off()
+# legend("topleft", legend = unique(clusters)[order], col = uniqueCols[order], pch=16, cex=0.7, ncol=1)
+# dev.off()
 
 #keep genes with >10 total counts
 good.genes = genes[rowSums(spliced) > 10 & rowSums(unspliced) > 10]
@@ -103,31 +102,32 @@ legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames
 
 
 # VELOCITIES
-par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
+pdf('dentate_rainbow.pdf')
+par(mfrow=c(1,1))
 
 show.velocity.on.embedding.cor(emb.veloviz1, vel,
                                n = 50,
                                scale='rank',
                                cex=1, arrow.scale=2, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F, 
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1.5,do.par = F, 
                                frame.plot = TRUE, xaxt='n',yaxt='n',xlab="VeloViz X",ylab="VeloViz Y",
-                               cell.colors=scales::alpha(col.clust[rownames(emb.veloviz1)],0.4), main='VeloViz')
+                               cell.colors=scales::alpha(col.clust[rownames(emb.veloviz1)],1), main='VeloViz')
 
 show.velocity.on.embedding.cor(emb.umap, vel,
                                n = 50,
                                scale='rank',
-                               cex=1, arrow.scale=2, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
+                               cex=1, arrow.scale=3, show.grid.flow=TRUE,
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1.5,do.par = F,
                                frame.plot = TRUE, xaxt='n',yaxt='n',xlab="UMAP X",ylab="UMAP Y",
-                               cell.colors=scales::alpha(col.clust,0.4), main='UMAP')
-legend(x=-18, y=19.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=1)
+                               cell.colors=scales::alpha(col.clust,1), main='UMAP')
+# legend(x=-18, y=19.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(emb.umapVelo, vel,
                                n = 50,
                                scale='rank',
                                cex=1, arrow.scale=2, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1,do.par = F,
+                               min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1.5,do.par = F,
                                frame.plot = TRUE, xaxt='n',yaxt='n',xlab="UMAP X",ylab="UMAP Y",
-                               cell.colors=scales::alpha(col.clust[rownames(emb.umapVelo)], 0.4), main='UMAP with VeloViz')
-legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
-
+                               cell.colors=scales::alpha(col.clust[rownames(emb.umapVelo)], 1), main='UMAP with VeloViz')
+# legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
+dev.off()

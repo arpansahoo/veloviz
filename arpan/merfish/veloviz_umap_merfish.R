@@ -126,18 +126,22 @@ plotEmbedding(emb.all.umapVelo, col = ptime.col[rownames(emb.all.umapVelo)],
 
 
 # show velocities
+pdf("merfish.pdf")
+
 par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 show.velocity.on.embedding.cor(emb.all.vv, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col[rownames(emb.all.vv)],0.4),
-                               cex = 1, arrow.scale = 1, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.5, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+                               cex = 1, arrow.scale = 2, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
+                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
                                main = "VeloViz", xlab = "VeloViz X", ylab = "VeloViz Y")
 
 show.velocity.on.embedding.cor(emb.all.umap, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col,0.4),
                                cex = 1, arrow.scale = 1, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.5, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
                                main = "UMAP", xlab = "UMAP X", ylab = "UMAP Y")
 
 show.velocity.on.embedding.cor(emb.all.umapVelo, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col[rownames(emb.all.umapVelo)],0.4),
-                               cex = 1, arrow.scale = 1, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.5, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+                               cex = 1, arrow.scale = 0.75, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
+                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
                                main = "UMAP with VeloViz", xlab = "UMAP X", ylab = "UMAP Y")
+
+dev.off()

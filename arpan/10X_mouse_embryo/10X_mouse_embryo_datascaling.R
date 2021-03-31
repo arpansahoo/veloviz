@@ -37,8 +37,8 @@ for (n in c(1:length(sample.size))){
   for (r in c(1:3)){
     print(paste("r = ",r))
     curr.cells <- curr.size.samples[[r]]
-
-    cell.dist <- as.dist(1-cor(t(pcs[curr.cells,])))
+    pcs <- pcs[curr.cells,]
+    cell.dist <- as.dist(1-cor(t(pcs)))
 
     curr.s <- s[,curr.cells]
     curr.u <- u[,curr.cells]
@@ -66,13 +66,27 @@ for (n in c(1:length(sample.size))){
       verbose = FALSE
     )
 
-    vv.start <- Sys.time()
+    # vv.start <- Sys.time()
     g <- plotVeloviz(veloviz, clusters=com, seed = 0)
-    vv.end <- Sys.time()
+    # vv.end <- Sys.time()
     
+    # veloviz.time <- difftime(vv.end, vv.start, units = "secs")
+    # vv.times[n,r] <- veloviz.time
+    
+
+    ##UMAP
+    set.seed(0)
+    vv.start <- Sys.time()
+    emb.umap = uwot::umap(pcs, min_dist = 0.5)
+    vv.end <- Sys.time()
+    rownames(emb.umap) <- rownames(pcs)
+    plot(emb.umap, main='UMAP',pch = 16, xlab = "UMAP X", ylab = "UMAP Y")
+
     veloviz.time <- difftime(vv.end, vv.start, units = "secs")
     vv.times[n,r] <- veloviz.time
-    
+
+    ##UMAP with VeloViz
+
     # Get NN graph 
     nnGraph <- as_nn_graph(graph = veloviz$graph, k = 15)
     
@@ -96,7 +110,7 @@ save(vv.times, umap.times, file = "runtimes.RData")
 sample.size <- c(100, 500, 1000, 2500, 5000, 7500, 9295)
 load("runtimes.RData")
 
-# VELOVIZ RUNTIME #
+# UMAP RUNTIME #
 rownames(vv.times) <- sample.size
 vv.times <- t(vv.times)
 vv.times.avg <- colMeans(vv.times)
@@ -126,10 +140,10 @@ p <- ggplot(vv.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) +
 
 p
 
-ggsave(file = "veloviz_scalability.pdf", plot = p, width = 4, height = 4)
+ggsave(file = "umap_normal_scalability.pdf", plot = p, width = 4, height = 4)
 
 
-# UMAP RUNTIME #
+# UMAP with Velo RUNTIME #
 rownames(umap.times) <- sample.size
 umap.times <- t(umap.times)
 umap.times.avg <- colMeans(umap.times)
@@ -159,4 +173,4 @@ p <- ggplot(umap.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) +
 
 p
 
-ggsave(file = "umap_scalability.pdf", plot = p, width = 4, height = 4)
+ggsave(file = "umap_velo_scalability.pdf", plot = p, width = 4, height = 4)

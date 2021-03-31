@@ -64,16 +64,16 @@ col = rev(plasma(length(levels(clusters))))
 cell.cols = col[clusters] 
 names(cell.cols) = names(clusters)
 
-pdf("pancreas_legend.pdf")
-par(mfrow=c(1,1))
-plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='')
+# pdf("pancreas_legend.pdf")
+# par(mfrow=c(1,1))
+# plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='')
 # uniqueCols <- unique(cell.cols)
 # orderCols <- rev(order(uniqueCols))
-legend("topleft", 
-       legend = unique(clusters)[c(2, 3, 5, 1, 4, 6, 8, 7)],
-       col = uniqueCols[c(2, 3, 5, 1, 4, 6, 8, 7)],
-       pch=16, cex=0.7, ncol=1)
-dev.off()
+# legend("topleft", 
+#        legend = unique(clusters)[c(2, 3, 5, 1, 4, 6, 8, 7)],
+#        col = uniqueCols[c(2, 3, 5, 1, 4, 6, 8, 7)],
+#        pch=16, cex=0.7, ncol=1)
+# dev.off()
 
 
 # build VeloViz embedding
@@ -99,8 +99,6 @@ veloviz <- buildVeloviz(
 )
 
 # Plot veloviz
-pdf("pancreas_1.pdf")
-
 emb.veloviz = veloviz$fdg_coords
 par(mfrow=c(1,1))
 plotEmbedding(emb.veloviz, 
@@ -126,6 +124,8 @@ plotEmbedding(emb.umapVelo,
               main = 'UMAP with VeloViz', xlab = "UMAP X", ylab = "UMAP Y")
 
 # show velocities
+pdf("pancreas_thick.pdf")
+
 par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                n = 50,
