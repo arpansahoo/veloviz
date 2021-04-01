@@ -144,7 +144,7 @@ emb.umap = uwot::umap(pcs, min_dist = 0.5)
 rownames(emb.umap) <- rownames(pcs)
 ```
 
-UMAP initialized with VeloViz nearest neighbors
+UMAP with VeloViz nearest neighbors
 ---------------------------
 Now we want to input VeloViz-computed nearest neighbor data into UMAP. 
 VeloViz outputs an igraph graph, but the uwot::umap function expects
@@ -221,7 +221,7 @@ plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
               xlab = "UMAP X", ylab = "UMAP Y")
               
-# UMAP initialized with VeloViz nearest neighbors
+# UMAP with VeloViz nearest neighbors
 plotEmbedding(emb.umapVelo,
               colors = cell.cols[rownames(emb.umapVelo)],
               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
@@ -267,6 +267,6 @@ show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                main='UMAP with VeloViz', xlab="UMAP X", ylab='UMAP Y')
 ```
 
-Veloviz                    |  UMAP                     |  UMAP (initialized with VeloViz)
+Veloviz                    |  UMAP                     |  UMAP with VeloViz
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](umap_files/figure-markdown_strict/pancreasVeloviz_withArrows.png) | ![](umap_files/figure-markdown_strict/pancreasUMAP_withArrows.png) | ![](umap_files/figure-markdown_strict/pancreasUMAPVelo_withArrows.png) 
