@@ -59,14 +59,10 @@ pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 # saveRDS(vel, file = "pancreas_vel.rds")
 vel <- readRDS(file = "pancreas_vel.rds")
 
-# # choose colors based on clusters for plotting later
-# col = rev(plasma(length(levels(clusters))))
-# cell.cols = col[clusters] 
-# names(cell.cols) = names(clusters)
-
-cell.cols <- rainbow(8)[as.numeric(clusters)]
-names(cell.cols) <- names(clusters)
-
+# choose colors based on clusters for plotting later
+col = rev(plasma(length(levels(clusters))))
+cell.cols = col[clusters] 
+names(cell.cols) = names(clusters)
 
 # pdf("pancreas_legend.pdf")
 # par(mfrow=c(1,1))
@@ -78,7 +74,6 @@ names(cell.cols) <- names(clusters)
 #        col = uniqueCols[c(2, 3, 5, 1, 4, 6, 8, 7)],
 #        pch=16, cex=0.7, ncol=1)
 # dev.off()
-
 
 # build VeloViz embedding
 curr <- vel$current
@@ -102,11 +97,10 @@ veloviz <- buildVeloviz(
   verbose = FALSE
 )
 
-pdf("pancreas_tutorial.pdf")
+par(mfrow=c(1,1))
 
 # Plot veloviz
 emb.veloviz = veloviz$fdg_coords
-par(mfrow=c(1,1))
 plotEmbedding(emb.veloviz, 
               colors=cell.cols[rownames(emb.veloviz)],
               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
@@ -132,8 +126,10 @@ plotEmbedding(emb.umapVelo,
               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
               main = 'UMAP with VeloViz', xlab = "UMAP X", ylab = "UMAP Y")
 
+pdf("pancreas_new.pdf")
+
 # show velocities
-par(mfrow=c(1,1), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
+par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                n = 50,
                                scale='sqrt',
@@ -141,7 +137,6 @@ show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="VeloViz X", ylab='VeloViz Y',
                                cell.colors=cell.cols[rownames(emb.veloviz)], main='VeloViz')
-# legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.veloviz)]), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                n = 50,
@@ -150,7 +145,6 @@ show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
                                cell.colors=cell.cols, main='UMAP')
-# legend(x=-1.65, y=-0.5, legend = unique(clusters), col = unique(cell.cols), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                n = 50,
@@ -160,6 +154,5 @@ show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                cell.colors = cell.cols[rownames(emb.umapVelo)],
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
                                main='UMAP with VeloViz')
-# legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
 
 dev.off()
