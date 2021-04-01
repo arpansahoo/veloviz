@@ -28,6 +28,7 @@ for (n in sample.size){
 
 vv.times <- matrix(0, nrow = length(sample.size), ncol = 3)
 umap.times <- matrix(0, nrow = length(sample.size), ncol = 3)
+umapVelo.times <- matrix(0, nrow = length(sample.size), ncol = 3)
 
 for (n in c(1:length(sample.size))){
   print(paste("n =", n))
@@ -37,23 +38,10 @@ for (n in c(1:length(sample.size))){
   for (r in c(1:3)){
     print(paste("r = ",r))
     curr.cells <- curr.size.samples[[r]]
-    #pcs <- pcs[curr.cells,]
-    #cell.dist <- as.dist(1-cor(t(pcs[curr.cells,])))
+    cell.dist <- as.dist(1-cor(t(pcs[curr.cells,])))
 
     curr.s <- s[,curr.cells]
     curr.u <- u[,curr.cells]
-
-    all <- curr.s + curr.u
-   
-    #normalize 
-    cpm <- normalizeDepth(all)
-    varnorm <- normalizeVariance(cpm)
-    lognorm <- log10(varnorm + 1)
-
-    #pca
-    pcs <- reduceDimensions(lognorm, center = T, scale = T, nPCs = 50)
-
-    cell.dist <- as.dist(1-cor(t(pcs)))
 
     vel <- gene.relative.velocity.estimates(curr.s,curr.u,kCells = 30, cell.dist = cell.dist, fit.quantile = 0.1)
 
@@ -70,59 +58,57 @@ for (n in c(1:length(sample.size))){
       center = TRUE,
       scale = TRUE,
       k = 15,
-      similarity.threshold = 0.1, #,
+      similarity.threshold = 0.1, 
       distance.weight = 1,
-      distance.threshold = 0.6, #1
+      distance.threshold = 0.6,
       weighted = TRUE,
       seed = 0,
       verbose = FALSE
     )
 
-    # vv.start <- Sys.time()
+    vv.start <- Sys.time()
     g <- plotVeloviz(veloviz, clusters=com, seed = 0)
-    # vv.end <- Sys.time()
-    
-    # veloviz.time <- difftime(vv.end, vv.start, units = "secs")
-    # vv.times[n,r] <- veloviz.time
-    
+    vv.end <- Sys.time()
+
+    vv.time <- difftime(vv.end, vv.start, units = "secs")
+    vv.times[n,r] <- vv.time
 
     ##UMAP
     set.seed(0)
-    vv.start <- Sys.time()
-    emb.umap = uwot::umap(pcs, min_dist = 0.5)
-    vv.end <- Sys.time()
-    rownames(emb.umap) <- rownames(pcs)
-    plot(emb.umap, main='UMAP',pch = 16, xlab = "UMAP X", ylab = "UMAP Y")
+    emb.umap = uwot::umap(pcs[curr.cells,], min_dist = 0.5, ret_nn = TRUE)
 
-    veloviz.time <- difftime(vv.end, vv.start, units = "secs")
-    vv.times[n,r] <- veloviz.time
-
-    ##UMAP with VeloViz
-
-    # Get NN graph 
-    nnGraph <- as_nn_graph(graph = veloviz$graph, k = 15)
-    
-    # input nnGraph to UMAP and plot
-    set.seed(0)
     umap.start <- Sys.time()
-    emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+    set.seed(0)
+    emb.umapBackIn = uwot::umap(X = NULL, nn_method = emb.umap$nn, min_dist = 0.5)
     umap.end <- Sys.time()
+
     umap.time <- difftime(umap.end, umap.start, units = "secs")
     umap.times[n,r] <- umap.time
     
-    plotEmbedding(emb.umapVelo)
+    ##UMAP with VeloViz
+
+    # Get NN graph
+    nnGraph <- as_nn_graph(graph = veloviz$graph, k = 15)
+
+    # input nnGraph to UMAP and plot
+    set.seed(0)
+    umapVelo.start <- Sys.time()
+    emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+    umapVelo.end <- Sys.time()
+    umapVelo.time <- difftime(umapVelo.end, umapVelo.start, units = "secs")
+    umapVelo.times[n,r] <- umapVelo.time
   }
   
 }
 
-save(vv.times, umap.times, file = "runtimes.RData")
+save(vv.times, umap.times, umapVelo.times, file = "runtimes.RData")
 
 #### EVALUATE RUNTIME ####
 
-sample.size <- c(100, 500, 1000, 2500, 5000, 7500, 9295)
+sample.size <- c(500)
 load("runtimes.RData")
 
-# UMAP RUNTIME #
+# VV RUNTIME #
 rownames(vv.times) <- sample.size
 vv.times <- t(vv.times)
 vv.times.avg <- colMeans(vv.times)
@@ -152,10 +138,10 @@ p <- ggplot(vv.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) +
 
 p
 
-ggsave(file = "umap_normal_scalability.pdf", plot = p, width = 4, height = 4)
+ggsave(file = "vv_scalability.pdf", plot = p, width = 4, height = 4)
 
 
-# UMAP with Velo RUNTIME #
+# UMAP RUNTIME #
 rownames(umap.times) <- sample.size
 umap.times <- t(umap.times)
 umap.times.avg <- colMeans(umap.times)
@@ -185,4 +171,38 @@ p <- ggplot(umap.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) +
 
 p
 
+ggsave(file = "umap_scalability.pdf", plot = p, width = 4, height = 4)
+
+
+# UMAP with Velo RUNTIME #
+rownames(umapVelo.times) <- sample.size
+umapVelo.times <- t(umapVelo.times)
+umapVelo.times.avg <- colMeans(umapVelo.times)
+
+umapVelo.times.df <- data.frame(umapVelo.times)
+umapVelo.times.df <- gather(umapVelo.times.df)
+umapVelo.times.df$key <- unlist(lapply(sample.size, function(x) rep(x,3)))
+colnames(umapVelo.times.df) <- c("Number of Cells", "Runtime (seconds)")
+
+umapVelo.avg.df <- data.frame(umapVelo.times.avg)
+umapVelo.avg.df <- cbind(sample.size, umapVelo.avg.df)
+colnames(umapVelo.avg.df) <- c("Number of Cells", "Average Runtime (seconds)")
+
+
+figtheme <-  theme_bw(base_size = 18) + 
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        plot.title = element_text(hjust=0.5, size = 36),
+        axis.line=element_line(size=1),
+        legend.position = 'none')
+
+p <- ggplot(umapVelo.times.df, aes(x=`Number of Cells`, y=`Runtime (seconds)`)) + 
+  geom_point(colour = "red", size = 4, shape=4) + 
+  stat_summary(fun=mean, geom="line", colour="black", size = 1) +
+  figtheme
+
+p
+
 ggsave(file = "umap_velo_scalability.pdf", plot = p, width = 4, height = 4)
+
