@@ -65,7 +65,8 @@ plotEmbedding(emb.pca, groups=pancreas$clusters, main='PCA')
 
 #tSNE
 set.seed(0)
-emb.tsne = Rtsne::Rtsne(pcs, perplexity=30)$Y rownames(emb.tsne) = rownames(pcs)
+emb.tsne = Rtsne::Rtsne(pcs, perplexity=30)$Y 
+rownames(emb.tsne) = rownames(pcs)
 plotEmbedding(emb.tsne, groups=pancreas$clusters, main='tSNE',
 xlab = "t-SNE X", ylab = "t-SNE Y")
 
@@ -86,3 +87,4 @@ plotEmbedding(emb.veloviz, groups=clusters[rownames(emb.veloviz)], main='veloviz
 [scRNA-seq data preprocessing and visualization using VeloViz](pancreas)  
 [MERFISH cell cycle visualization using VeloViz](merfish)  
 [Understanding VeloViz parameters](simulation)
+[Visualizing the VeloViz graph using UMAP](umap)
