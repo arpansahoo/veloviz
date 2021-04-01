@@ -4,7 +4,7 @@ Inputting VeloViz nearest neighbors into UMAP
 In this example, we will use Veloviz to produce a velocity-informed 2D
 embedding and will then pass the computed nearest neighbor data into UMAP. 
 This is useful to users who want to use common algorithms such as t-SNE and
-UMAP, but with informed initialization. We will use the pancreas 
+UMAP to layout their embedding. We will use the pancreas 
 endocrinogenesis dataset in this example.
 
 First, load libraries:
