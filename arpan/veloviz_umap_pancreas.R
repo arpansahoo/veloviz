@@ -59,10 +59,14 @@ pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 # saveRDS(vel, file = "pancreas_vel.rds")
 vel <- readRDS(file = "pancreas_vel.rds")
 
-# choose colors based on clusters for plotting later
-col = rev(plasma(length(levels(clusters))))
-cell.cols = col[clusters] 
-names(cell.cols) = names(clusters)
+# # choose colors based on clusters for plotting later
+# col = rev(plasma(length(levels(clusters))))
+# cell.cols = col[clusters] 
+# names(cell.cols) = names(clusters)
+
+cell.cols <- rainbow(8)[as.numeric(clusters)]
+names(cell.cols) <- names(clusters)
+
 
 # pdf("pancreas_legend.pdf")
 # par(mfrow=c(1,1))
@@ -98,11 +102,14 @@ veloviz <- buildVeloviz(
   verbose = FALSE
 )
 
+pdf("pancreas_tutorial.pdf")
+
 # Plot veloviz
 emb.veloviz = veloviz$fdg_coords
 par(mfrow=c(1,1))
 plotEmbedding(emb.veloviz, 
               colors=cell.cols[rownames(emb.veloviz)],
+              frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
               main='VeloViz', xlab="VeloViz X", ylab = "VeloViz Y")
 
 # UMAP (normal)
@@ -110,6 +117,7 @@ set.seed(0)
 emb.umap = uwot::umap(pcs, min_dist = 0.5)
 rownames(emb.umap) <- rownames(pcs)
 plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
+              frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
               xlab = "UMAP X", ylab = "UMAP Y")
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
@@ -121,19 +129,18 @@ emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
 rownames(emb.umapVelo) <- rownames(emb.veloviz)
 plotEmbedding(emb.umapVelo,
               colors = cell.cols[rownames(emb.umapVelo)],
+              frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
               main = 'UMAP with VeloViz', xlab = "UMAP X", ylab = "UMAP Y")
 
 # show velocities
-pdf("pancreas_thick.pdf")
-
-par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
+par(mfrow=c(1,1), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="VeloViz X", ylab='VeloViz Y',
-                               cell.colors=scales::alpha(cell.cols[rownames(emb.veloviz)], 0.4), main='VeloViz')
+                               cell.colors=cell.cols[rownames(emb.veloviz)], main='VeloViz')
 # legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.veloviz)]), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umap), vel,
@@ -142,7 +149,7 @@ show.velocity.on.embedding.cor(scale(emb.umap), vel,
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
-                               cell.colors=scales::alpha(cell.cols,0.4), main='UMAP')
+                               cell.colors=cell.cols, main='UMAP')
 # legend(x=-1.65, y=-0.5, legend = unique(clusters), col = unique(cell.cols), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
@@ -150,7 +157,7 @@ show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-                               cell.colors = scales::alpha(cell.cols[rownames(emb.umapVelo)], 0.4),
+                               cell.colors = cell.cols[rownames(emb.umapVelo)],
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
                                main='UMAP with VeloViz')
 # legend(x=-1.5, y=-0.5, legend = unique(clusters), col = unique(cell.cols[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)

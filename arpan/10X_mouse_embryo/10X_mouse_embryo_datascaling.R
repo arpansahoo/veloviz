@@ -105,7 +105,7 @@ save(vv.times, umap.times, umapVelo.times, file = "runtimes.RData")
 
 #### EVALUATE RUNTIME ####
 
-sample.size <- c(500)
+sample.size <- c(100, 500, 1000, 2500, 5000, 7500, 9295)
 load("runtimes.RData")
 
 # VV RUNTIME #
