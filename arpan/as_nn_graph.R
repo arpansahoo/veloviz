@@ -1,10 +1,13 @@
 library(igraph)
 
-as_nn_graph = function(graph, k) {
+as_nn_graph = function(veloviz) {
+  graph <- veloviz$graph
   edges <- get.edgelist(graph) # array of [source, target] 
-  weights <- E(graph)$weight # edge weights
   numEdges <- gsize(graph)
   numVertices <- gorder(graph)
+  
+  allDists <- veloviz$projected_neighbors$all_dists # distances
+  k <- max(degree(veloviz$graph, mode="out"))
   
   # array of [X, Neighbors(X)]
   idx <- matrix(nrow=numVertices, ncol=k+1) 
@@ -26,7 +29,7 @@ as_nn_graph = function(graph, k) {
     index <- min(which(idx[source,] == source)[-1])
     
     idx[source, index] <- target
-    dist[source, index] <- weights[i]
+    dist[source, index] <- allDists[source, target]
   }
   
   # construct & return a list consisting of two elements: "idx", "dist"

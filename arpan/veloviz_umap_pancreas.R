@@ -5,7 +5,6 @@ library(veloviz)
 library(velocyto.R)
 library(viridis)
 library(igraph)
-source("as_nn_graph.R")
 
 # clusters <- pancreas$clusters # cell type annotations
 # pcs <- pancreas$pcs # PCs used to make other embeddings (UMAP,tSNE..)
@@ -49,7 +48,7 @@ pcs <- reduceDimensions(lognorm, center = TRUE, scale = TRUE, nPCs = 50)
 
 # # cell distance in PC space
 # cell.dist <- as.dist(1-cor(t(pcs)))
-# 
+#
 # # compute velocity
 # vel <- gene.relative.velocity.estimates(spliced,
 #                                         unspliced,
@@ -97,25 +96,26 @@ veloviz <- buildVeloviz(
   verbose = FALSE
 )
 
-par(mfrow=c(1,1))
+par(mfrow=c(1,1), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 
 # Plot veloviz
 emb.veloviz = veloviz$fdg_coords
-plotEmbedding(emb.veloviz, 
-              colors=cell.cols[rownames(emb.veloviz)],
-              frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
-              main='VeloViz', xlab="VeloViz X", ylab = "VeloViz Y")
-
-# UMAP (normal)
-set.seed(0)
-emb.umap = uwot::umap(pcs, min_dist = 0.5)
-rownames(emb.umap) <- rownames(pcs)
-plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
-              frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
-              xlab = "UMAP X", ylab = "UMAP Y")
+# plotEmbedding(emb.veloviz, 
+#               colors=cell.cols[rownames(emb.veloviz)],
+#               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+#               main='VeloViz', xlab="VeloViz X", ylab = "VeloViz Y")
+# 
+# # UMAP (normal)
+# set.seed(0)
+# emb.umap = uwot::umap(pcs, min_dist = 0.5)
+# rownames(emb.umap) <- rownames(pcs)
+# plotEmbedding(emb.umap, colors = cell.cols, main='UMAP',
+#               frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+#               xlab = "UMAP X", ylab = "UMAP Y")
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
-nnGraph <- as_nn_graph(graph = veloviz$graph, k = 20)
+source("as_nn_graph.R")
+nnGraph <- as_nn_graph(veloviz)
 
 # input nnGraph to UMAP and plot
 set.seed(0)
@@ -129,29 +129,27 @@ plotEmbedding(emb.umapVelo,
 pdf("pancreas_new.pdf")
 
 # show velocities
-par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
-show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
-                               n = 50,
-                               scale='sqrt',
-                               cex=1, arrow.scale=1, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="VeloViz X", ylab='VeloViz Y',
-                               cell.colors=cell.cols[rownames(emb.veloviz)], main='VeloViz')
-
-show.velocity.on.embedding.cor(scale(emb.umap), vel,
-                               n = 50,
-                               scale='sqrt',
-                               cex=1, arrow.scale=1, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
-                               frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
-                               cell.colors=cell.cols, main='UMAP')
-
+# par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
+# show.velocity.on.embedding.cor(scale(emb.veloviz), vel,
+#                                n = 50,
+#                                scale='sqrt',
+#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
+#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
+#                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="VeloViz X", ylab='VeloViz Y',
+#                                cell.colors=scales::alpha(cell.cols[rownames(emb.veloviz)], 0.4), main='VeloViz')
+# show.velocity.on.embedding.cor(scale(emb.umap), vel,
+#                                n = 50,
+#                                scale='sqrt',
+#                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
+#                                min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1,do.par = F,
+#                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
+#                                cell.colors=scales::alpha(cell.cols, 0.4), main='UMAP')
 show.velocity.on.embedding.cor(scale(emb.umapVelo), vel,
                                n = 50,
                                scale='sqrt',
                                cex=1, arrow.scale=1, show.grid.flow=TRUE,
-                               min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1, do.par = F,
-                               cell.colors = cell.cols[rownames(emb.umapVelo)],
+                               min.grid.cell.mass=0.5, grid.n=30, arrow.lwd=1.5, do.par = F,
+                               cell.colors = scales::alpha(cell.cols[rownames(emb.umapVelo)], 0.4),
                                frame.plot = TRUE, xaxt = 'n', yaxt = 'n', xlab="UMAP X", ylab='UMAP Y',
                                main='UMAP with VeloViz')
 

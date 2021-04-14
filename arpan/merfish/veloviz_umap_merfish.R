@@ -71,16 +71,9 @@ neg.x <- which(emb.vv.scaled[,1]<0)
 ptime.vv[neg.x] <- -1*ptime.vv[neg.x]
 ptime.vv <- (ptime.vv + 90)/180 
 
-# ptime.vv[which(ptime.vv<0)] <- -1*ptime.vv[which(ptime.vv<0)]
-
-
 col.gradient = colorRampPalette(c('blue','red'))
 ptime.col <- col.gradient(n.cells)[as.numeric(cut(ptime.vv,breaks = n.cells))]
 names(ptime.col) = rownames(emb.pnas.vv)
-
-# plot(scale(emb.pnas.vv), col=ptime.col, pch=16)
-
-
 
 
 # build VeloViz embedding using all genes
@@ -105,19 +98,19 @@ veloviz.all <- buildVeloviz(
 # Plot veloviz
 emb.all.vv = veloviz.all$fdg_coords
 par(mfrow=c(1,1), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
-plotEmbedding(emb.all.vv, col = ptime.col[rownames(emb.all.vv)],
-              main = 'VeloViz', xlab = "VeloViz X", ylab = "VeloViz Y")
-
-# Normal UMAP
-set.seed(0)
-emb.all.umap = uwot::umap(X = pcs[,1:3], min_dist = 0.3)
-rownames(emb.all.umap) = rownames(pcs)
-plotEmbedding(emb.all.umap, col = ptime.col,
-              main = 'UMAP', xlab = "UMAP X", ylab = "UMAP Y")
+# plotEmbedding(emb.all.vv, col = ptime.col[rownames(emb.all.vv)],
+#               main = 'VeloViz', xlab = "VeloViz X", ylab = "VeloViz Y")
+# 
+# # Normal UMAP
+# set.seed(0)
+# emb.all.umap = uwot::umap(X = pcs[,1:3], min_dist = 0.3)
+# rownames(emb.all.umap) = rownames(pcs)
+# plotEmbedding(emb.all.umap, col = ptime.col,
+#               main = 'UMAP', xlab = "UMAP X", ylab = "UMAP Y")
 
 # UMAP (initialized with velo)
 set.seed(0)
-nnGraph.all <- as_nn_graph(graph = veloviz.all$graph, k = 100)
+nnGraph.all <- as_nn_graph(veloviz.all)
 emb.all.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph.all, min_dist = 0.3)
 rownames(emb.all.umapVelo) <- rownames(emb.all.vv)
 plotEmbedding(emb.all.umapVelo, col = ptime.col[rownames(emb.all.umapVelo)],
@@ -126,22 +119,22 @@ plotEmbedding(emb.all.umapVelo, col = ptime.col[rownames(emb.all.umapVelo)],
 
 
 # show velocities
-pdf("merfish.pdf")
+pdf("merfish_new.pdf")
 
-par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
-show.velocity.on.embedding.cor(emb.all.vv, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col[rownames(emb.all.vv)],0.4),
-                               cex = 1, arrow.scale = 2, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
-                               main = "VeloViz", xlab = "VeloViz X", ylab = "VeloViz Y")
-
-show.velocity.on.embedding.cor(emb.all.umap, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col,0.4),
-                               cex = 1, arrow.scale = 1, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
-                               main = "UMAP", xlab = "UMAP X", ylab = "UMAP Y")
+# par(mfrow=c(2,2), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
+# show.velocity.on.embedding.cor(emb.all.vv, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col[rownames(emb.all.vv)],0.4),
+#                                cex = 1, arrow.scale = 2, show.grid.flow = TRUE, min.grid.cell.mass = 2,
+#                                grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+#                                main = "VeloViz", xlab = "VeloViz X", ylab = "VeloViz Y")
+# 
+# show.velocity.on.embedding.cor(emb.all.umap, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col,0.4),
+#                                cex = 1, arrow.scale = 1, show.grid.flow = TRUE, min.grid.cell.mass = 2,
+#                                grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+#                                main = "UMAP", xlab = "UMAP X", ylab = "UMAP Y")
 
 show.velocity.on.embedding.cor(emb.all.umapVelo, vel, n = 100, scale = 'sqrt', cell.colors = scales::alpha(ptime.col[rownames(emb.all.umapVelo)],0.4),
                                cex = 1, arrow.scale = 0.75, show.grid.flow = TRUE, min.grid.cell.mass = 2, 
-                               grid.n = 30, arrow.lwd = 1.25, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
+                               grid.n = 30, arrow.lwd = 1.5, do.par = FALSE, frame.plot = TRUE, xaxt = 'n', yaxt = 'n',
                                main = "UMAP with VeloViz", xlab = "UMAP X", ylab = "UMAP Y")
 
 dev.off()

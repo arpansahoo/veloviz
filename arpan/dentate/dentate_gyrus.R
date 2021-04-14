@@ -77,7 +77,6 @@ emb.veloviz1 = veloviz1$fdg_coords
 par(mfrow=c(1,1))
 plotEmbedding(emb.veloviz1, colors=col.clust[rownames(emb.veloviz1)], 
               main="VeloViz", xlab="VeloViz X", ylab="VeloViz Y")
-legend(x=9.5, y=-8, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.8, ncol=2)
 
 ##UMAP
 set.seed(0)
@@ -85,24 +84,19 @@ emb.umap = uwot::umap(pcs, min_dist = 0.5)
 rownames(emb.umap) <- rownames(pcs)
 plotEmbedding(emb.umap, colors=col.clust,
               main='UMAP', xlab = "UMAP X", ylab = "UMAP Y")
-legend(x=-18, y=19.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=1)
-
-
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
 nnGraph <- as_nn_graph(graph = veloviz1$graph, k = 100)
 
 # input nnGraph to UMAP and plot
 set.seed(0)
-emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 0.5)
+emb.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph, min_dist = 2 )
 rownames(emb.umapVelo) <- rownames(emb.veloviz1)
 plotEmbedding(emb.umapVelo, colors=col.clust[rownames(emb.umapVelo)], 
               main = 'UMAP with VeloViz', xlab = "UMAP X", ylab = "UMAP Y")
-legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
-
 
 # VELOCITIES
-pdf('dentate_rainbow.pdf')
+pdf('dentate_rainbow_new.pdf')
 par(mfrow=c(1,1))
 
 show.velocity.on.embedding.cor(emb.veloviz1, vel,
@@ -120,14 +114,13 @@ show.velocity.on.embedding.cor(emb.umap, vel,
                                min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1.5,do.par = F,
                                frame.plot = TRUE, xaxt='n',yaxt='n',xlab="UMAP X",ylab="UMAP Y",
                                cell.colors=scales::alpha(col.clust,1), main='UMAP')
-# legend(x=-18, y=19.5, legend = unique(clusters), col = unique(col.clust), pch=16, cex=0.7, ncol=1)
 
 show.velocity.on.embedding.cor(emb.umapVelo, vel,
                                n = 50,
                                scale='rank',
-                               cex=1, arrow.scale=2, show.grid.flow=TRUE,
+                               cex=1, arrow.scale=3, show.grid.flow=TRUE,
                                min.grid.cell.mass=0.5, grid.n=50, arrow.lwd=1.5,do.par = F,
                                frame.plot = TRUE, xaxt='n',yaxt='n',xlab="UMAP X",ylab="UMAP Y",
                                cell.colors=scales::alpha(col.clust[rownames(emb.umapVelo)], 1), main='UMAP with VeloViz')
-# legend(x=-7.5, y=4.5, legend = unique(clusters), col = unique(col.clust[rownames(emb.umapVelo)]), pch=16, cex=0.7, ncol=1)
+
 dev.off()
