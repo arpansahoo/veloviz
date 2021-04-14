@@ -3,7 +3,6 @@ graphics.off()
 library(veloviz)
 library(velocyto.R)
 library(uwot)
-source("../as_nn_graph.R")
 
 #### LOAD MERFISH DATA ####
 #load from veloviz package
@@ -110,7 +109,7 @@ par(mfrow=c(1,1), omi = c(0.1,0.1,0.1,0.1), mai = c(0.82,0.82,0.62,0.22))
 
 # UMAP (initialized with velo)
 set.seed(0)
-nnGraph.all <- as_nn_graph(veloviz.all)
+nnGraph.all <- veloviz::asNNGraph(veloviz.all)
 emb.all.umapVelo <- uwot::umap(X = NULL, nn_method = nnGraph.all, min_dist = 0.3)
 rownames(emb.all.umapVelo) <- rownames(emb.all.vv)
 plotEmbedding(emb.all.umapVelo, col = ptime.col[rownames(emb.all.umapVelo)],

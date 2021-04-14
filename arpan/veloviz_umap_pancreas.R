@@ -114,8 +114,7 @@ emb.veloviz = veloviz$fdg_coords
 #               xlab = "UMAP X", ylab = "UMAP Y")
 
 # Convert veloviz$graph (igraph type) to an idx & dist representation
-source("as_nn_graph.R")
-nnGraph <- as_nn_graph(veloviz)
+nnGraph <- veloviz::asNNGraph(veloviz)
 
 # input nnGraph to UMAP and plot
 set.seed(0)

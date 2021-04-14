@@ -1,18 +1,20 @@
 library(igraph)
 
-as_nn_graph = function(veloviz) {
-  graph <- veloviz$graph
-  edges <- get.edgelist(graph) # array of [source, target] 
-  numEdges <- gsize(graph)
-  numVertices <- gorder(graph)
+asNNGraph = function(vig) {
+  graph <- vig$graph
+  edges <- igraph::get.edgelist(graph) 
+  numEdges <- igraph::gsize(graph)
+  numVertices <- igraph::gorder(graph)
   
-  allDists <- veloviz$projected_neighbors$all_dists # distances
-  k <- max(degree(veloviz$graph, mode="out"))
+  k <- max(igraph::degree(graph, mode="out")) # k is the max out-degree
+  allDists <- vig$projected_neighbors$all_dists # distances
   
-  # array of [X, Neighbors(X)]
+  # each row i contains the indices of vertex i's NNs
+  # vertex i is a NN of itself so first value in row is i
   idx <- matrix(nrow=numVertices, ncol=k+1) 
   
-  # each row is distances from a vertex X to its neighbors
+  # each row i contains distances from vertex i to its NNs
+  # vertex i is a NN of itself so first value in row is 0.0
   dist <- matrix(0, nrow=numVertices, ncol=k+1)
   
   # replace NA values by saying a vertex X is a neighbor of itself 
@@ -32,10 +34,9 @@ as_nn_graph = function(veloviz) {
     dist[source, index] <- allDists[source, target]
   }
   
-  # construct & return a list consisting of two elements: "idx", "dist"
-  nnGraph <- list()
-  nnGraph$idx <- idx
-  nnGraph$dist <- dist
-  
-  return(nnGraph)
+  # return a list consisting of two elements: "idx" and "dist"
+  out <- list()
+  out[['idx']] <- idx
+  out[['dist']] <- dist  
+  return(out)
 }
